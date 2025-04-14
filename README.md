@@ -9,9 +9,7 @@ These Terraform resources create dynamic INGRESS and EGRESS firewall rules in GC
 
 ## Architecture
 
-<img width="6000" length="8000" alt="Terraform" src="https://github.com/user-attachments/assets/26c523f3-290d-4be9-bc8b-39fbca89478b">
-
-
+<img width="600" length="800" alt="Terraform" src="https://github.com/user-attachments/assets/22a28392-0bb2-47c9-802e-99ec9a9f7246">
 
 ## Providers
 
