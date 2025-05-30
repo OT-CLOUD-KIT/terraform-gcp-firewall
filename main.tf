@@ -11,15 +11,18 @@ resource "google_compute_firewall" "ingress_rules" {
   priority  = var.ingress_priority
   direction = "INGRESS"
 
-  source_ranges = var.ingress_source_cidrs
-
   target_tags             = each.key == "tags" ? each.value : null
   target_service_accounts = each.key == "sa" ? each.value : null
 
-  allow {
-    protocol = "tcp"
-    ports    = ["80", "443"]
+  dynamic "allow" {
+    for_each = var.ingress_rules
+    content {
+      protocol = allow.value.protocol
+      ports    = allow.value.ports
+    }
   }
+
+  source_ranges = flatten([for rule in var.ingress_rules : rule.cidr_blocks])
 }
 
 resource "google_compute_firewall" "egress_rules" {
@@ -35,14 +38,16 @@ resource "google_compute_firewall" "egress_rules" {
   priority  = var.egress_priority
   direction = "EGRESS"
 
-  destination_ranges = var.egress_source_cidrs
-
   target_tags             = each.key == "tags" ? each.value : null
   target_service_accounts = each.key == "sa" ? each.value : null
 
-  allow {
-    protocol = "tcp"
-    ports    = ["80", "443"]
+  dynamic "allow" {
+    for_each = var.egress_rules
+    content {
+      protocol = allow.value.protocol
+      ports    = allow.value.ports
+    }
   }
-}
 
+  destination_ranges = flatten([for rule in var.egress_rules : rule.destination_ranges])
+}

@@ -4,7 +4,7 @@ variable "network" {
 }
 
 variable "ingress_name" {
-  description = "Name of the ingress firewall rule"
+  description = "Base name for the ingress firewall rule"
   type        = string
 }
 
@@ -14,25 +14,27 @@ variable "ingress_priority" {
   default     = 1000
 }
 
-variable "ingress_source_cidrs" {
-  description = "Source CIDR ranges for ingress rule"
-  type        = list(string)
+variable "ingress_rules" {
+  description = "List of ingress rules with ports and source CIDRs"
+  type = list(object({
+    protocol    = string
+    ports       = list(string)
+    cidr_blocks = list(string)
+  }))
 }
 
 variable "ingress_service_accounts" {
-  description = "List of service accounts for ingress rule"
-  type        = list(string)
-  default     = []
+  type    = list(string)
+  default = []
 }
 
 variable "ingress_network_tags" {
-  description = "Network tags for ingress rule"
-  type        = list(string)
-  default     = []
+  type    = list(string)
+  default = []
 }
 
 variable "egress_name" {
-  description = "Name of the egress firewall rule"
+  description = "Base name for the egress firewall rule"
   type        = string
 }
 
@@ -42,19 +44,21 @@ variable "egress_priority" {
   default     = 1000
 }
 
-variable "egress_source_cidrs" {
-  description = "Source CIDR ranges for egress rule"
-  type        = list(string)
+variable "egress_rules" {
+  description = "List of egress rules with ports and source CIDRs"
+  type = list(object({
+    protocol           = string
+    ports              = list(string)
+    destination_ranges = list(string)
+  }))
 }
 
 variable "egress_service_accounts" {
-  description = "List of service accounts for egress rule"
-  type        = list(string)
-  default     = []
+  type    = list(string)
+  default = []
 }
 
 variable "egress_network_tags" {
-  description = "Network tags for egress rule"
-  type        = list(string)
-  default     = []
+  type    = list(string)
+  default = []
 }
