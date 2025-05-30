@@ -1,13 +1,3 @@
-variable "project_id" {
-  description = "GCP Project ID"
-  type        = string
-}
-
-variable "region" {
-  description = "Region for the resources."
-  type        = string
-}
-
 variable "network" {
   description = "VPC network where the rules will be applied"
   type        = string
@@ -25,6 +15,7 @@ variable "ingress_priority" {
 }
 
 variable "ingress_rules" {
+  description = "List of ingress rules with ports and source CIDRs"
   type = list(object({
     protocol    = string
     ports       = list(string)
@@ -54,6 +45,7 @@ variable "egress_priority" {
 }
 
 variable "egress_rules" {
+  description = "List of egress rules with ports and source CIDRs"
   type = list(object({
     protocol           = string
     ports              = list(string)
