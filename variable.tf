@@ -4,57 +4,65 @@ variable "network" {
 }
 
 variable "ingress_name" {
-  description = "Name of the ingress firewall rule"
+  description = "Base name for the ingress firewall rule"
   type        = string
 }
 
-variable "ingress_priority" {
-  description = "Priority of the ingress rule"
-  type        = number
-  default     = 1000
-}
-
-variable "ingress_source_cidrs" {
-  description = "Source CIDR ranges for ingress rule"
-  type        = list(string)
+variable "ingress_rules" {
+  description = "List of ingress rules with ports and source CIDRs"
+  type = list(object({
+    name          = string
+    priority      = number
+    protocol      = string
+    ports         = list(string)
+    source_ranges = list(string)
+  }))
 }
 
 variable "ingress_service_accounts" {
-  description = "List of service accounts for ingress rule"
-  type        = list(string)
-  default     = []
+  type    = list(string)
+  default = []
 }
 
 variable "ingress_network_tags" {
-  description = "Network tags for ingress rule"
-  type        = list(string)
-  default     = []
+  type    = list(string)
+  default = []
 }
 
 variable "egress_name" {
-  description = "Name of the egress firewall rule"
+  description = "Base name for the egress firewall rule"
   type        = string
 }
 
-variable "egress_priority" {
-  description = "Priority of the egress rule"
-  type        = number
-  default     = 1000
-}
-
-variable "egress_source_cidrs" {
-  description = "Source CIDR ranges for egress rule"
-  type        = list(string)
+variable "egress_rules" {
+  description = "List of egress rules with ports and source CIDRs"
+  type = list(object({
+    name               = string
+    priority           = number
+    protocol           = string
+    ports              = list(string)
+    destination_ranges = list(string)
+  }))
 }
 
 variable "egress_service_accounts" {
-  description = "List of service accounts for egress rule"
+  type    = list(string)
+  default = []
+}
+
+variable "egress_network_tags" {
+  type    = list(string)
+  default = []
+}
+
+variable "default_ingress_source_ranges" {
+  description = "Default source CIDR blocks for ingress rules if not provided in rule"
   type        = list(string)
   default     = []
 }
 
-variable "egress_network_tags" {
-  description = "Network tags for egress rule"
+variable "default_egress_destination_ranges" {
+  description = "Default destination CIDR blocks for egress rules if not provided in rule"
   type        = list(string)
   default     = []
 }
