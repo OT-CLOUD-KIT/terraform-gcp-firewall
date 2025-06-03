@@ -5,7 +5,7 @@
   [opstree_homepage]: https://opstree.github.io/
   [opstree_avatar]: https://img.cloudposse.com/150x150/https://github.com/opstree.png
 
-These Terraform resources create dynamic INGRESS and EGRESS firewall rules in GCP based on whether network tags or service accounts are provided. The for_each loop ensures that rules are only created if the corresponding values exist, and assigns appropriate targets with predefined TCP ports (80, 443).
+This Terraform configuration defines **ingress** and **egress firewall rules** for a GCP VPC network using dynamic and flexible logic. It supports targeting rules to either **network tags** or **service accounts**, and can handle multiple rules via `for_each` and nested loops. Each rule allows specific protocols and ports, and falls back to default source or destination ranges if not provided. This structure enables scalable, reusable, and well-organized firewall management for different workloads.
 
 ## Architecture
 
