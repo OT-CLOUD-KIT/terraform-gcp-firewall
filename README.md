@@ -5,7 +5,7 @@
   [opstree_homepage]: https://opstree.github.io/
   [opstree_avatar]: https://img.cloudposse.com/150x150/https://github.com/opstree.png
 
-These Terraform resources create dynamic INGRESS and EGRESS firewall rules in GCP based on whether network tags or service accounts are provided. The for_each loop ensures that rules are only created if the corresponding values exist, and assigns appropriate targets with predefined TCP ports (80, 443).
+This Terraform configuration defines **ingress** and **egress firewall rules** for a GCP VPC network using dynamic and flexible logic. It supports targeting rules to either **network tags** or **service accounts**, and can handle multiple rules via `for_each` and nested loops. Each rule allows specific protocols and ports, and falls back to default source or destination ranges if not provided. This structure enables scalable, reusable, and well-organized firewall management for different workloads.
 
 ## Architecture
 
@@ -21,38 +21,57 @@ These Terraform resources create dynamic INGRESS and EGRESS firewall rules in GC
 
 ```hcl
 module "firewall_rules" {
-  source = "./module"
-
-  network                  = var.network
-  ingress_name             = var.ingress_name
-  ingress_priority         = var.ingress_priority
-  ingress_source_cidrs     = var.ingress_source_cidrs
-  ingress_service_accounts = var.ingress_service_accounts
-  ingress_network_tags     = var.ingress_network_tags
-
-  egress_name             = var.egress_name
-  egress_priority         = var.egress_priority
-  egress_source_cidrs     = var.egress_source_cidrs
-  egress_service_accounts = var.egress_service_accounts
-  egress_network_tags     = var.egress_network_tags
+  source                            = "./module"
+  network                           = var.network
+  ingress_name                      = var.ingress_name
+  ingress_rules                     = var.ingress_rules
+  ingress_service_accounts          = var.ingress_service_accounts
+  ingress_network_tags              = var.ingress_network_tags
+  egress_name                       = var.egress_name
+  egress_rules                      = var.egress_rules
+  egress_service_accounts           = var.egress_service_accounts
+  egress_network_tags               = var.egress_network_tags
+  default_ingress_source_ranges     = var.default_ingress_source_ranges
+  default_egress_destination_ranges = var.default_egress_destination_ranges
 }
 
 # Variable values
 
 project_id               = "nw-opstree-dev-landing-zone"
 region                   = "us-central1"
-network                  = "new-vpc"
+network                  = "default"
 ingress_name             = "new-ingress"
-ingress_priority         = 1000
-ingress_source_cidrs     = ["0.0.0.0/0", "10.0.0.0/24"]
-ingress_service_accounts = ["service_account"]
-ingress_network_tags     = ["network-tag"]
+ingress_service_accounts = ["260805399744-compute@developer.gserviceaccount.com"]
+ingress_network_tags     = []
+ingress_rules = [
+  {
+    name        = "ingress-1"
+    priority    = 100
+    protocol    = "tcp"
+    ports       = ["80", "443"]
+    source_ranges = ["0.0.0.0/0"]
+  },
+  {
+    name        = "ingress-2"
+    priority    = 200
+    protocol    = "icmp"
+    ports       = []
+    source_ranges = ["10.0.0.0/24"]
+  }
+]
 
 egress_name             = "new-egress"
-egress_priority         = 1000
-egress_source_cidrs     = ["0.0.0.0/0"]
-egress_service_accounts = ["service_account"]
+egress_service_accounts = []
 egress_network_tags     = ["network-tag"]
+egress_rules = [
+  {
+    name               = "egress-1"
+    priority           = 65535
+    protocol           = "all"
+    ports              = []
+    destination_ranges = ["0.0.0.0/0"]
+  }
+]
 
 ```
 
@@ -64,21 +83,19 @@ egress_network_tags     = ["network-tag"]
 |**region**| The Google Cloud region | string | us-central1 | yes | 
 |**network**| VPC network where the rules will be applied | string | { } |yes| 
 |**ingress_name**| Name of the ingress firewall rule | string | { } | yes| 
-|**ingress_priority** | Priority of the ingress rule | number | 1000 | yes|
-|**ingress_source_cidrs**| Source CIDR ranges for ingress rule | list(string) | [ ] | yes | 
+|**default_ingress_source_ranges** | Default source CIDR blocks for ingress rules if not provided in rule | list(string) | [] | yes|
+|**ingress_rules**| Rules for ingress rule | list(object()) | [ ] | yes|
 |**ingress_service_accounts**| List of service accounts for ingress rules| list(string) | [ ] | yes| 
 |**ingress_network_tags**| Network tags for ingress rule | list(string) | [ ] | yes| 
 |**egress_name** | Name of the egress firewall rule | string | { } | yes|
-|**egress_priority**| Priority of the egress rule| number |1000 | yes | 
-|**egress_source_cidrs**| Source CIDR ranges for egress rule | list(string) | [ ] | yes|
+|**default_egress_destination_ranges**| Default destination CIDR blocks for egress rules if not provided in rule| list(string) |[] | yes | 
+|**egress_rules**| Rules for egress rule | list(object()) | [ ] | yes|
 |**egress_service_accounts**| List of service accounts for egress rule | list(string) | [ ]| yes| 
 |**egress_network_tags** | Network tags for egress rule | list(string) | [ ]  | yes|
 
 ## Output
 | Name | Description |
 |------|-------------|
-|**ingress_firewall_rule_ids**| IDs of the created ingress firewall rules| 
-|**egress_firewall_rule_ids**| IDs of the created egress firewall rules |
-|**ingress_firewall_rule_names**| Names of the created ingress firewall rules|
-|**egress_firewall_rule_names** | Names of the created egress firewall rules |
+|**ingress_firewall_rules**| Names of the created ingress firewall rules|
+|**egress_firewall_rules** | Names of the created egress firewall rules |
                                                                                                                   
